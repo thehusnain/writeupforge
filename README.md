@@ -7,6 +7,19 @@ Convert raw cybersecurity lab notes into professional, structured Markdown and P
 
 ---
 
+## Getting Your Groq API Key (Required First)
+
+Before you install, you need a free Groq API key:
+
+1. Visit: https://console.groq.com/keys
+2. Click "Sign Up" (free account, takes 2 minutes)
+3. Click "Create API Key"
+4. Copy the key (you'll need it during installation)
+
+**You will be prompted for this key during the installer!**
+
+---
+
 ## Installation & Setup
 
 ### For Linux Users
