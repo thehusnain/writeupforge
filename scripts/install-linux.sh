@@ -89,20 +89,9 @@ case $choice in
         pip3 install -e .
         print_success "Installed with pip"
         
-        # Create launcher
-        print_step 4 4 "Creating desktop launcher..."
-        create_desktop_launcher
-        
-        echo ""
-        echo -e "${GREEN}${BOLD}Installation Complete! ✨${NC}"
-        echo ""
-        echo -e "${BOLD}You can now run WriteupForge from anywhere:${NC}"
-        echo -e "  ${CYAN}writeupforge${NC}"
-        echo -e "  ${CYAN}fgwrite${NC}"
-        echo ""
-        echo -e "${BOLD}Or launch with GUI:${NC}"
-        echo -e "  ${CYAN}Python run.py --gui${NC}"
-        echo ""
+        # Configure API key
+        print_step 4 4 "Configuring API Key..."
+        create_env_file
         ;;
     
     2)
@@ -120,37 +109,18 @@ case $choice in
         pipx install -e .
         print_success "Installed with pipx"
         
-        # Create launcher
-        print_step 4 4 "Creating desktop launcher..."
-        create_desktop_launcher
-        
-        echo ""
-        echo -e "${GREEN}${BOLD}Installation Complete! ✨${NC}"
-        echo ""
-        echo -e "${BOLD}You can now run WriteupForge from anywhere:${NC}"
-        echo -e "  ${CYAN}writeupforge${NC}"
-        echo -e "  ${CYAN}fgwrite${NC}"
-        echo ""
-        echo -e "${BOLD}Or launch with GUI:${NC}"
-        echo -e "  ${CYAN}python3 run.py --gui${NC}"
-        echo ""
+        # Configure API key
+        print_step 4 4 "Configuring API Key..."
+        create_env_file
         ;;
     
     3)
         print_step 3 4 "Setting up local environment..."
-        bash setup_env.sh
+        bash scripts/setup_env.sh
         
-        # Create launcher
-        print_step 4 4 "Creating desktop launcher..."
-        create_desktop_launcher
-        
-        echo ""
-        echo -e "${GREEN}${BOLD}Installation Complete! ✨${NC}"
-        echo ""
-        echo -e "${BOLD}To run WriteupForge:${NC}"
-        echo -e "  ${CYAN}source venv/bin/activate${NC}"
-        echo -e "  ${CYAN}python run.py${NC}"
-        echo ""
+        # Configure API key
+        print_step 4 4 "Configuring API Key..."
+        create_env_file
         ;;
     
     *)
@@ -158,6 +128,35 @@ case $choice in
         exit 1
         ;;
 esac
+
+# Function to create .env file in user's config directory
+create_env_file() {
+    CONFIG_DIR="$HOME/.writeupforge"
+    mkdir -p "$CONFIG_DIR"
+    
+    if [ -f "$CONFIG_DIR/.env" ]; then
+        print_info "Config file already exists at $CONFIG_DIR/.env"
+        read -p "Do you want to update it? (y/n): " update_env
+        if [ "$update_env" != "y" ]; then
+            return
+        fi
+    fi
+    
+    echo ""
+    echo -e "${BOLD}Enter your Groq API Key${NC}"
+    echo -e "${YELLOW}(Get free key at: https://console.groq.com/keys)${NC}"
+    read -sp "API Key: " api_key
+    echo ""
+    
+    if [ -z "$api_key" ]; then
+        print_error "API key cannot be empty. Skipping configuration."
+        echo -e "${YELLOW}You can add it later by editing:${NC} ${CYAN}$CONFIG_DIR/.env${NC}"
+    else
+        echo "GROQ_API_KEY=$api_key" > "$CONFIG_DIR/.env"
+        chmod 600 "$CONFIG_DIR/.env"
+        print_success "API key saved to $CONFIG_DIR/.env"
+    fi
+}
 
 # Function to create desktop launcher
 create_desktop_launcher() {
@@ -187,24 +186,62 @@ EOF
     fi
 }
 
+# Create .env file in user's config directory
+create_env_file() {
+    CONFIG_DIR="$HOME/.writeupforge"
+    mkdir -p "$CONFIG_DIR"
+    
+    if [ -f "$CONFIG_DIR/.env" ]; then
+        print_info "Config file already exists at $CONFIG_DIR/.env"
+        read -p "Do you want to update it? (y/n): " update_env
+        if [ "$update_env" != "y" ]; then
+            return
+        fi
+    fi
+    
+    echo ""
+    echo -e "${BOLD}Enter your Groq API Key${NC}"
+    echo -e "${YELLOW}(Get free key at: https://console.groq.com/keys)${NC}"
+    read -sp "API Key: " api_key
+    echo ""
+    
+    if [ -z "$api_key" ]; then
+        print_error "API key cannot be empty. Skipping configuration."
+        echo -e "${YELLOW}You can add it later by editing:${NC} ${CYAN}$CONFIG_DIR/.env${NC}"
+    else
+        echo "GROQ_API_KEY=$api_key" > "$CONFIG_DIR/.env"
+        print_success "API key saved to $CONFIG_DIR/.env"
+    fi
+}
+
+# Configure API key
+echo ""
+print_step 4 4 "Configuring API Key..."
+create_env_file
+
 # Next steps
 echo ""
 echo -e "${BOLD}📋 Next Steps:${NC}"
 echo ""
-echo -e "${BOLD}1️⃣  Configure Your API Key:${NC}"
-echo -e "   Create a ${CYAN}.env${NC} file in WriteupForge folder:"
-echo -e "   ${CYAN}echo \"GROQ_API_KEY=your_key_here\" > .env${NC}"
-echo -e "   Get your free key at: ${CYAN}https://console.groq.com/keys${NC}"
+echo -e "${BOLD}1️⃣  API Key Configuration:${NC}"
+if [ -f "$HOME/.writeupforge/.env" ]; then
+    echo -e "   ${GREEN}✓ Done!${NC} Your API key is saved in:"
+    echo -e "   ${CYAN}$HOME/.writeupforge/.env${NC}"
+else
+    echo -e "   ${YELLOW}⚠ Skipped!${NC} You can add your API key later:"
+    echo -e "   ${CYAN}echo \"GROQ_API_KEY=your_key_here\" > ~/.writeupforge/.env${NC}"
+    echo -e "   Get your free key at: ${CYAN}https://console.groq.com/keys${NC}"
+fi
 echo ""
 echo -e "${BOLD}2️⃣  Launch WriteupForge:${NC}"
 echo -e "   • Find ${CYAN}WriteupForge${NC} in your applications menu"
-echo -e "   • Or run: ${CYAN}writeupforge${NC} or ${CYAN}python3 run.py${NC}"
+echo -e "   • Or run: ${CYAN}writeupforge${NC} or ${CYAN}fgwrite${NC}"
 echo ""
-echo -e "${BOLD}3️⃣  Start Creating:${NC}"
+echo -e "${BOLD}3️⃣  Start Creating Professional Reports:${NC}"
 echo -e "   • Fill in your writeup details"
 echo -e "   • Paste your lab notes"
 echo -e "   • Click 'Generate Professional Report'"
 echo ""
 echo -e "${CYAN}📁 Reports saved in: ${SCRIPT_DIR}/output${NC}"
-echo -e "${YELLOW}❓ Need help? Check: README.md or QUICKSTART.md${NC}"
+echo -e "${YELLOW}📚 Documentation: ${CYAN}${SCRIPT_DIR#$HOME/}/docs/README.md${NC}"
 echo ""
