@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "writeupforge"
+version = "1.0.0"
+description = "Convert raw cybersecurity lab notes into professional writeups"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["cybersecurity", "writeup", "markdown", "pdf", "hacking", "pentest"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Text Processing :: Markup",
+    "Development Status :: 4 - Beta",
+]
+dependencies = [
+    "openai",
+    "click",
+    "reportlab",
+    "python-dotenv",
+    "customtkinter",
+    "pillow",
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/WriteSec"
+"Bug Tracker" = "https://github.com/your-username/WriteSec/issues"
+Documentation = "https://github.com/your-username/WriteSec"
+"Source Code" = "https://github.com/your-username/WriteSec"
+
+[project.scripts]
+writeupforge = "run:run"
+fgwrite = "run:run"
+
+[project.gui-scripts]
+writeupforge-gui = "main_gui:run_gui"

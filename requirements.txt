@@ -1,0 +1,7 @@
+openai
+click
+reportlab
+python-dotenv
+customtkinter
+pillow
+requests
