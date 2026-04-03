@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "thehusnain"}
 ]
 keywords = ["cybersecurity", "writeup", "markdown", "pdf", "hacking", "pentest"]
 classifiers = [
@@ -35,10 +35,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/WriteSec"
-"Bug Tracker" = "https://github.com/your-username/WriteSec/issues"
-Documentation = "https://github.com/your-username/WriteSec"
-"Source Code" = "https://github.com/your-username/WriteSec"
+Homepage = "https://github.com/thehusnain/WriteupForge"
+"Bug Tracker" = "https://github.com/thehusnain/WriteupForge/issues"
+Documentation = "https://github.com/thehusnain/WriteupForge"
+"Source Code" = "https://github.com/thehusnain/WriteupForge"
 
 [project.scripts]
 writeupforge = "cli:main"

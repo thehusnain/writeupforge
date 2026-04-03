@@ -36,12 +36,12 @@ def print_step(step_num, total, text):
 
 def print_success(text):
     """Print success message"""
-    print(f"{Colors.GREEN}✓ {text}{Colors.RESET}")
+    print(f"{Colors.GREEN}[+] {text}{Colors.RESET}")
 
 
 def print_error(text):
     """Print error message"""
-    print(f"{Colors.RED}✗ {text}{Colors.RESET}")
+    print(f"{Colors.RED}[-] {text}{Colors.RESET}")
 
 
 def print_info(text):
@@ -201,7 +201,7 @@ def print_completion_message():
         print(f"   {Colors.YELLOW}python run.py --cli{Colors.RESET}")
     
     print("")
-    print(f"{Colors.GREEN}✓ WriteupForge is ready to use!{Colors.RESET}")
+    print(f"{Colors.GREEN}[+] WriteupForge is ready to use!{Colors.RESET}")
     print("")
 
 

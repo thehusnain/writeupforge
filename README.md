@@ -1,241 +1,89 @@
 # WriteupForge
 
-Convert raw cybersecurity lab notes into professional, structured Markdown and PDF reports using AI.
+**WriteupForge** is a tool that takes your rough lab notes and automatically turns them into clear, professional cybersecurity writeups using AI. 
 
-**Platform Support**: Windows | Linux
-**UI Options**: GUI (Graphical) | CLI (Command-line)
-
----
-
-## Getting Your Groq API Key (Required First)
-
-Before you install, you need a free Groq API key:
-
-1. Visit: https://console.groq.com/keys
-2. Click "Sign Up" (free account, takes 2 minutes)
-3. Click "Create API Key"
-4. Copy the key (you'll need it during installation)
-
-**You will be prompted for this key during the installer!**
+It works on Windows, Linux, and macOS, and generates reports in both **Markdown** and **PDF** formats.
 
 ---
 
-## Installation & Setup
+## 🛠️ Step 1: Getting Your Free AI API Key
 
-**Quick Summary of Steps:**
-[1] Clone the repository
-[2] Prepare your API key (have it ready)
-[3] Run the installer script
+WriteupForge uses Groq's super-fast AI to write the reports. It is completely free!
+
+1. Go to **[console.groq.com/keys](https://console.groq.com/keys)**
+2. Click **Create API Key**
+3. Copy the key (it starts with `gsk_...`)
+4. Save it somewhere safe—you'll need it during installation!
 
 ---
+
+## 💻 Step 2: Installation
 
 ### For Linux Users
 
-**Step 1: Clone the repository**
-```bash
-git clone https://github.com/thehusnain/writeupforge.git
-cd writeupforge
-```
-
-**Step 2: Prepare your API key**
-Make sure you have copied your Groq API key from https://console.groq.com/keys
-
-**Step 3: Run the installer**
-```bash
-chmod +x scripts/install-linux.sh
-sudo bash scripts/install-linux.sh
-```
-
-The installer will:
-[+] Create Python virtual environment
-[+] Install all dependencies  
-[+] Ask for your Groq API key (paste it now!)
-[+] Create system-wide `fgwrite` command
-[+] Save API key to .env file
-
-**Step 4: Start using it immediately!**
-```bash
-# Just type the command directly - no setup needed!
-fgwrite --cli    # Command-line mode
-fgwrite --gui    # Graphical mode
-fgwrite          # Auto-detect mode
-```
-
-**That's it!** Just close and reopen your terminal, then you can use `fgwrite` from anywhere.
-
----
+1. Open your terminal.
+2. Clone this folder and go into it:
+   ```bash
+   git clone https://github.com/thehusnain/WriteupForge.git
+   cd WriteupForge
+   ```
+3. Run the installer script:
+   ```bash
+   sudo bash install.sh
+   ```
+   *Note: During installation, it will ask you to paste the Groq API key you just copied.*
+4. **Done!** Open a new terminal and just type:
+   ```bash
+   fgwrite
+   ```
 
 ### For Windows Users
 
-**Step 1: Clone the repository**
-```
-git clone https://github.com/thehusnain/writeupforge.git
-cd writeupforge
-```
-
-**Step 2: Prepare your API key**
-Make sure you have copied your Groq API key from https://console.groq.com/keys
-
-**Step 3: Run the installer**
-[+] Right-click: scripts/install-wizard.ps1
-[+] Select: "Run with PowerShell"
-[+] Click "Yes" when prompted (needs admin)
-
-The installer will:
-[+] Create virtual environment
-[+] Install all dependencies
-[+] Create .env file
-[+] Create Desktop shortcut
-
-**Step 4: Add your API key**
-[+] Open the .env file in project folder
-[+] Paste your Groq API key
-[+] Save the file
-
-**Step 5: Run the application**
-[+] Click the Desktop shortcut, OR
-[+] Use Start Menu > WriteupForge
+1. Download and extract this project folder.
+2. Search for **PowerShell** in the Start Menu, right-click it, and select **Run as Administrator**.
+3. Go to the extracted folder in PowerShell:
+   ```powershell
+   cd path\to\WriteupForge
+   ```
+4. Run the installer:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\install-wizard.ps1
+   ```
+   *Note: Just like Linux, it will ask for your Groq API key.*
+5. **Done!** Check your Desktop for the new **WriteupForge** icon. Double-click it to start!
 
 ---
 
-## How to Use
+## 📝 How to Use
 
-### Running in CLI Mode
-```bash
-fgwrite --cli
-```
-[+] Enter writeup title
-[+] Enter your name  
-[+] Select platform (HackTheBox, TryHackMe, etc.)
-[+] Select difficulty level
-[+] Paste your notes (type DONE when finished)
+### Linux (Terminal Mode)
+Just type **`fgwrite`** in any terminal folder. It will ask you a few simple questions:
+- **Title** (e.g., "Nmap Scan")
+- **Author** (Your name)
+- **Platform** (HackTheBox, TryHackMe, etc.)
+- **Difficulty** (Beginner, Intermediate, etc.)
+- **Your Notes** (Paste your rough notes and type `DONE` on an empty line)
 
-### Running in GUI Mode
-```bash
-fgwrite --gui
-```
-[+] Fill in the form with your details
-[+] Paste your lab notes
-[+] Click "Generate Professional Report"
+The tool will think for a few seconds, and then save the finished `.md` and `.pdf` files inside an `output/` folder wherever you are.
 
-Reports are saved in the project folder: `output/` directory
+### Windows (Graphic Interface)
+Open the app from your Desktop icon. 
+You will see a clean, simple window where you can type your Title, Name, select options, and paste your notes. Click the **Generate Professional Report** button and watch the magic happen!
 
 ---
 
-## Project Structure
+## 🗑️ How to Uninstall
 
-```
-writeupforge/
-├── scripts/               [Installation & Setup]
-│   ├── install-wizard.ps1 [Windows installer]
-│   ├── install-linux.sh   [Linux installer]
-│   └── uninstall.bat      [Windows uninstall]
-├── docs/                  [Documentation]
-├── config/                [Config templates]
-├── utils/                 [Helper modules]
-├── main.py                [CLI mode]
-├── main_gui.py            [GUI mode]
-├── run.py                 [Application launcher]
-├── ai_handler.py          [Groq API]
-├── requirements.txt       [Dependencies]
-└── .env                   [Your API key]
-```
+If you ever want to remove it:
 
----
+**Linux:** 
+Run `sudo bash scripts/uninstall.sh` inside the project folder.
 
-## Troubleshooting
-
-### Error: "fgwrite: command not found"
-
-Close and reopen your terminal. The installation adds the command to system PATH which requires a terminal restart.
-
-If still not found:
-```bash
-# Verify it was installed
-ls -l /usr/local/bin/fgwrite
-
-# If missing, reinstall:
-sudo bash scripts/install-linux.sh
-```
-
-### Error: "GROQ_API_KEY not found"
-
-Add your API key through the GUI:
-```bash
-fgwrite --gui
-```
-Then go to Settings → API Configuration and paste your key.
-
-Or edit .env manually:
-```bash
-nano .env
-# Add: GROQ_API_KEY=your_key_here
-```
-
-### Error: "Python not found"
-
-Install Python 3.8+:
-```bash
-# Ubuntu/Debian
-sudo apt install python3 python3-pip python3-venv
-
-# Fedora/RHEL
-sudo dnf install python3 python3-pip
-
-# Arch
-sudo pacman -S python python-pip
-```
-
-### Error: "Module not found" (groq, click, etc.)
-
-Reinstall the package:
-```bash
-cd <installation-directory>
-source venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
-```
-
----
-
-## Getting Your API Key
-
-1. Go to https://console.groq.com/keys
-2. Sign up (free account takes 2 minutes)
-3. Click "Create API Key"
-4. Copy the key
-5. Add to your .env file
-6. Save and restart
-
----
-
-## Uninstall
-
-Windows:
-```
-scripts/uninstall.bat
-```
-
-Linux:
-```bash
-rm -rf writeupforge/
-```
-
----
-
-## Requirements
-
-[+] Python 3.8 or higher
-[+] Internet connection
-[+] 500MB disk space
-[+] Free Groq API key
+**Windows:** 
+Delete the project folder and the icon from your Desktop.
 
 ---
 
 ## License
 
-MIT License
-
----
-
-For issues or questions, visit: https://github.com/thehusnain/writeupforge
+This project is licensed under the MIT License.

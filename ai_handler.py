@@ -6,22 +6,25 @@ from dotenv import load_dotenv
 try:
     load_dotenv()
 except PermissionError as e:
-    # Better error message for permission issues
     raise PermissionError(
-        f"❌ Permission Error: Cannot read .env file\n"
+        f"[!] Permission Error: Cannot read .env file\n"
         f"Error: {str(e)}\n\n"
         f"Fix this by running:\n"
-        f"  sudo chown $USER:$USER /home/username/writeupforge/.env\n"
-        f"  sudo chmod 600 /home/username/writeupforge/.env"
+        f"  sudo chown $USER:$USER ~/.writeupforge/.env\n"
+        f"  sudo chmod 600 ~/.writeupforge/.env"
     )
 
 
 class AIHandler:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
-        if not self.api_key or self.api_key == "your_groq_api_key_here":
-            raise ValueError("GROQ_API_KEY not found in .env file. Please set your API key.")
-        
+        if not self.api_key or self.api_key == "your_api_key_here":
+            raise ValueError(
+                "GROQ_API_KEY not found or not set.\n"
+                "Please add your API key to the .env file.\n"
+                "Get a free key at: https://console.groq.com/keys"
+            )
+
         self.client = Groq(api_key=self.api_key)
         self.system_prompt = """You are an expert Cybersecurity Technical Writer. Convert raw lab notes into professional, structured writeups for platforms like Hackviser/HTB/TryHackMe.
 
@@ -61,7 +64,7 @@ RAW NOTES:
 
         try:
             response = self.client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="llama-3.3-70b-versatile",
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": user_prompt},

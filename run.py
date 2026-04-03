@@ -10,11 +10,9 @@ def run():
     force_cli = '--cli' in sys.argv
 
     if force_gui:
-        # Force GUI mode
         from main_gui import run_gui
         run_gui()
     elif force_cli:
-        # Force CLI mode
         from main import run_cli
         run_cli()
     elif os_name == "Windows":
@@ -31,8 +29,8 @@ if __name__ == "__main__":
     try:
         run()
     except KeyboardInterrupt:
-        click.echo(click.style("\n\nApplication closed by user.", fg='yellow'))
+        click.echo(click.style("\n[!] Application closed by user.", fg='yellow'))
         sys.exit(0)
     except Exception as e:
-        click.echo(click.style(f"\n❌ Error: {str(e)}", fg='red'))
+        click.echo(click.style(f"\n[-] Error: {str(e)}", fg='red'))
         sys.exit(1)

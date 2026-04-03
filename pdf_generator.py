@@ -4,6 +4,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_CENTER
 import os
+import re
 
 
 class PDFGenerator:
@@ -72,7 +73,24 @@ class PDFGenerator:
                 story.append(Paragraph(f"<i>{line}</i>", self.styles['Italic']))
                 story.append(Spacer(1, 12))
             else:
-                clean_line = line.replace('**', '<b>').replace('__', '<b>').replace('*', '<i>').replace('_', '<i>')
-                story.append(Paragraph(clean_line, self.styles['CyberBody']))
+                # Use regex to safely replace bold and italic to ensure balanced tags
+                # Bold: **text** or __text__
+                clean_line = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', line)
+                clean_line = re.sub(r'__(.*?)__', r'<b>\1</b>', clean_line)
+                # Italic: *text* or _text_ (only if surrounded by word boundaries to avoid breaking on snake_case)
+                clean_line = re.sub(r'(?<!\w)\*(.*?)\*(?!\w)', r'<i>\1</i>', clean_line)
+                clean_line = re.sub(r'(?<!\w)_(.*?)_(?!\w)', r'<i>\1</i>', clean_line)
+                
+                # Escape any remaining single < or > that might break ReportLab XML parsing
+                clean_line = clean_line.replace('<', '&lt;').replace('>', '&gt;')
+                # But revert the tags we just intentionally added
+                clean_line = clean_line.replace('&lt;b&gt;', '<b>').replace('&lt;/b&gt;', '</b>')
+                clean_line = clean_line.replace('&lt;i&gt;', '<i>').replace('&lt;/i&gt;', '</i>')
+
+                try:
+                    story.append(Paragraph(clean_line, self.styles['CyberBody']))
+                except Exception:
+                    # Fallback to plain text if XML parsing still fails
+                    story.append(Paragraph(line.replace('<', '&lt;').replace('>', '&gt;'), self.styles['CyberBody']))
 
         doc.build(story)

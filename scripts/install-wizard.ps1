@@ -1,206 +1,240 @@
 # WriteupForge Windows Setup Wizard
-# This is a user-friendly installer for Windows
+# Run as Administrator in PowerShell:
+#   powershell -ExecutionPolicy Bypass -File scripts\install-wizard.ps1
 
 param(
     [switch]$Silent = $false
 )
 
-# Colors for output
+# ── Helpers ───────────────────────────────────────────────────────────────────
 function Write-Header {
     param([string]$text)
     Write-Host ""
-    Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║ $text" -ForegroundColor Cyan
-    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "=================================================" -ForegroundColor Cyan
+    Write-Host "  $text" -ForegroundColor Cyan
+    Write-Host "=================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
-function Write-Step {
-    param([int]$num, [int]$total, [string]$text)
-    Write-Host "[$num/$total] $text" -ForegroundColor Green
+function Write-Ok {
+    param([string]$text)
+    Write-Host "[+] $text" -ForegroundColor Green
 }
 
 function Write-Info {
     param([string]$text)
-    Write-Host "ℹ️  $text" -ForegroundColor Cyan
+    Write-Host "[*] $text" -ForegroundColor Cyan
 }
 
-function Write-Error-Custom {
+function Write-Warn {
     param([string]$text)
-    Write-Host "❌ $text" -ForegroundColor Red
+    Write-Host "[!] $text" -ForegroundColor Yellow
 }
 
-function Write-Success {
+function Write-Err {
     param([string]$text)
-    Write-Host "✓ $text" -ForegroundColor Green
+    Write-Host "[-] $text" -ForegroundColor Red
 }
 
-# Check if running as administrator
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+# ── Admin check ───────────────────────────────────────────────────────────────
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+    [Security.Principal.WindowsBuiltInRole]::Administrator
+)
 if (-not $isAdmin) {
     Write-Host ""
-    Write-Host "⚠️  WriteupForge Setup Wizard" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "This installer needs to run as Administrator to create shortcuts." -ForegroundColor Yellow
-    Write-Host "Please run PowerShell as Administrator and try again." -ForegroundColor Yellow
+    Write-Warn "This installer needs to run as Administrator."
     Write-Host ""
     Write-Host "Steps:" -ForegroundColor Cyan
-    Write-Host "1. Right-click on PowerShell" -ForegroundColor White
-    Write-Host "2. Select 'Run as Administrator'" -ForegroundColor White
-    Write-Host "3. Go to the WriteupForge folder" -ForegroundColor White
-    Write-Host "4. Run: powershell -ExecutionPolicy Bypass -File install-wizard.ps1" -ForegroundColor White
+    Write-Host "  1. Right-click PowerShell" -ForegroundColor White
+    Write-Host "  2. Select 'Run as Administrator'" -ForegroundColor White
+    Write-Host "  3. Navigate to the WriteupForge folder" -ForegroundColor White
+    Write-Host "  4. Run: powershell -ExecutionPolicy Bypass -File scripts\install-wizard.ps1" -ForegroundColor White
     Write-Host ""
     exit 1
 }
 
-Write-Header "WriteupForge - Professional Cybersecurity Report Generator"
+Write-Header "WriteupForge Setup Wizard"
 
-# Step 1: Check Python
-Write-Step 1 4 "Checking Python installation..."
+$ProjectDir = Split-Path -Parent $PSScriptRoot
+
+# ── STEP 1: API Key ───────────────────────────────────────────────────────────
+Write-Host "[1/4] API Key Configuration" -ForegroundColor Cyan
+Write-Host ""
+Write-Info "A Groq API key is required to use WriteupForge."
+Write-Info "Get a free key at: https://console.groq.com/keys"
+Write-Host ""
+
+$envFile = "$ProjectDir\.env"
+$existingKey = ""
+
+if (Test-Path $envFile) {
+    $envContent = Get-Content $envFile -Raw
+    if ($envContent -match "GROQ_API_KEY=(.+)") {
+        $existingKey = $Matches[1].Trim()
+        if ($existingKey -ne "your_api_key_here" -and $existingKey.Length -gt 10) {
+            Write-Ok "Existing API key found in .env"
+            $useExisting = Read-Host "    Use existing key? (Y/n)"
+            if ($useExisting -eq "" -or $useExisting -eq "Y" -or $useExisting -eq "y") {
+                $apiKey = $existingKey
+            } else {
+                $apiKey = Read-Host "    Paste your Groq API key"
+            }
+        } else {
+            $apiKey = Read-Host "    Paste your Groq API key"
+        }
+    } else {
+        $apiKey = Read-Host "    Paste your Groq API key"
+    }
+} else {
+    $apiKey = Read-Host "    Paste your Groq API key"
+}
+
+if ([string]::IsNullOrWhiteSpace($apiKey) -or $apiKey -eq "your_api_key_here") {
+    Write-Warn "No API key entered. You can add it later via [*] Settings in the app."
+    $apiKey = "your_api_key_here"
+} else {
+    Write-Ok "API key received."
+}
+
+# ── STEP 2: Python check ──────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "[2/4] Checking Python installation..." -ForegroundColor Cyan
 $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pythonCmd) {
-    Write-Error-Custom "Python is not installed or not in PATH!"
+    Write-Err "Python is not installed or not in PATH."
     Write-Host ""
-    Write-Host "Please download and install Python from: https://www.python.org/downloads/" -ForegroundColor Yellow
-    Write-Host "(Make sure to check 'Add Python to PATH' during installation)" -ForegroundColor Yellow
+    Write-Host "Download Python from: https://www.python.org/downloads/" -ForegroundColor Yellow
+    Write-Host "(Check 'Add Python to PATH' during installation)" -ForegroundColor Yellow
     Write-Host ""
     exit 1
 }
-
-# Get Python version
 $pythonVersion = & python --version 2>&1
-Write-Success "$pythonVersion found"
+Write-Ok "$pythonVersion found"
 
-# Step 2: Create Virtual Environment
-Write-Step 2 4 "Setting up Python environment..."
-$venvPath = "$PSScriptRoot\venv"
+# ── STEP 3: Virtual environment & dependencies ────────────────────────────────
+Write-Host ""
+Write-Host "[3/4] Setting up Python environment..." -ForegroundColor Cyan
+$venvPath = "$ProjectDir\venv"
 
 if (Test-Path $venvPath) {
-    Write-Info "Virtual environment already exists, skipping..."
+    Write-Info "Virtual environment already exists — skipping."
 } else {
     try {
-        & python -m venv $venvPath -ErrorAction Stop
-        Write-Success "Virtual environment created"
+        & python -m venv $venvPath
+        Write-Ok "Virtual environment created"
     } catch {
-        Write-Error-Custom "Failed to create virtual environment!"
-        Write-Host $_.Exception.Message
+        Write-Err "Failed to create virtual environment: $($_.Exception.Message)"
         exit 1
     }
 }
 
-# Activate venv
 $activateScript = "$venvPath\Scripts\Activate.ps1"
 & $activateScript
 
-# Step 3: Install Dependencies
-Write-Step 3 4 "Installing dependencies..."
+Write-Info "Installing dependencies..."
 try {
     & python -m pip install --upgrade pip --quiet -q
-    & pip install -r requirements.txt --quiet -q
-    Write-Success "All dependencies installed"
+    & pip install -r "$ProjectDir\requirements.txt" --quiet -q
+    Write-Ok "Dependencies installed"
 } catch {
-    Write-Error-Custom "Failed to install dependencies!"
-    Write-Host $_.Exception.Message
+    Write-Err "Failed to install dependencies: $($_.Exception.Message)"
     exit 1
 }
 
-# Step 4: Create Desktop Shortcut and .env template
-Write-Step 4 4 "Creating shortcuts and configuration..."
+# ── STEP 4: Config, shortcut, start menu ──────────────────────────────────────
+Write-Host ""
+Write-Host "[4/4] Creating shortcuts and saving configuration..." -ForegroundColor Cyan
 
-# Create .env file if it doesn't exist
-$envFile = "$PSScriptRoot\.env"
-if (-not (Test-Path $envFile)) {
-    @"
+# Save .env
+@"
 # WriteupForge Configuration
-# Get your free API key at: https://console.groq.com/keys
-GROQ_API_KEY=your_api_key_here
-"@ | Set-Content $envFile
-    Write-Success "Created .env configuration file"
+# Get a free API key at: https://console.groq.com/keys
+GROQ_API_KEY=$apiKey
+"@ | Set-Content $envFile -Encoding utf8
+Write-Ok "Configuration saved to .env"
+
+# Convert icon.png -> icon.ico if needed
+$iconPng = "$ProjectDir\icon.png"
+$iconIco = "$ProjectDir\icon.ico"
+if ((Test-Path $iconPng) -and -not (Test-Path $iconIco)) {
+    Write-Info "Converting icon.png to icon.ico..."
+    try {
+        & python -c @"
+from PIL import Image
+img = Image.open(r'$iconPng')
+img.save(r'$iconIco', format='ICO', sizes=[(256,256),(128,128),(64,64),(32,32),(16,16)])
+print('[+] icon.ico created')
+"@
+    } catch {
+        Write-Warn "Could not convert icon (non-critical). Shortcut will use default icon."
+        $iconIco = $null
+    }
+} elseif (Test-Path $iconIco) {
+    Write-Info "icon.ico already exists — skipping conversion."
 }
 
-# Create Desktop Shortcut
+# Desktop shortcut
 try {
     $shell = New-Object -ComObject WScript.Shell
     $desktopPath = [Environment]::GetFolderPath("Desktop")
     $shortcutPath = "$desktopPath\WriteupForge.lnk"
-    
+
     $shortcut = $shell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = "$venvPath\Scripts\python.exe"
-    $shortcut.Arguments = "$PSScriptRoot\run.py"
-    $shortcut.WorkingDirectory = $PSScriptRoot
-    $shortcut.IconLocation = "$PSScriptRoot\icon.png"
+    $shortcut.Arguments = "`"$ProjectDir\run.py`""
+    $shortcut.WorkingDirectory = $ProjectDir
     $shortcut.Description = "WriteupForge - Professional Cybersecurity Report Generator"
+    if ($iconIco -and (Test-Path $iconIco)) {
+        $shortcut.IconLocation = $iconIco
+    }
     $shortcut.Save()
-    
-    Write-Success "Desktop shortcut created"
+    Write-Ok "Desktop shortcut created"
 } catch {
-    Write-Info "Could not create desktop shortcut (non-critical)"
+    Write-Warn "Could not create desktop shortcut: $($_.Exception.Message)"
 }
 
-# Create Start Menu folder
+# Start Menu shortcut
 try {
     $startMenuPath = [Environment]::GetFolderPath("Programs")
-    $appFolderPath = "$startMenuPath\WriteupForge"
-    
-    if (-not (Test-Path $appFolderPath)) {
-        New-Item -ItemType Directory -Path $appFolderPath | Out-Null
+    $appFolder = "$startMenuPath\WriteupForge"
+    if (-not (Test-Path $appFolder)) {
+        New-Item -ItemType Directory -Path $appFolder | Out-Null
     }
-    
-    $startMenuShortcutPath = "$appFolderPath\WriteupForge.lnk"
-    $shell = New-Object -ComObject WScript.Shell
-    $shortcut = $shell.CreateShortcut($startMenuShortcutPath)
-    $shortcut.TargetPath = "$venvPath\Scripts\python.exe"
-    $shortcut.Arguments = "$PSScriptRoot\run.py"
-    $shortcut.WorkingDirectory = $PSScriptRoot
-    $shortcut.IconLocation = "$PSScriptRoot\icon.png"
-    $shortcut.Description = "WriteupForge - Professional Cybersecurity Report Generator"
-    $shortcut.Save()
-    
-    # Create uninstall shortcut
-    $uninstallBatPath = "$appFolderPath\Uninstall WriteupForge.lnk"
-    $uninstallShortcut = $shell.CreateShortcut($uninstallBatPath)
-    $uninstallShortcut.TargetPath = "$PSScriptRoot\uninstall.bat"
-    $uninstallShortcut.WorkingDirectory = $PSScriptRoot
-    $uninstallShortcut.Description = "Uninstall WriteupForge"
-    $uninstallShortcut.Save()
-    
-    Write-Success "Start Menu shortcuts created"
+
+    $smShortcut = $shell.CreateShortcut("$appFolder\WriteupForge.lnk")
+    $smShortcut.TargetPath = "$venvPath\Scripts\python.exe"
+    $smShortcut.Arguments = "`"$ProjectDir\run.py`""
+    $smShortcut.WorkingDirectory = $ProjectDir
+    $smShortcut.Description = "WriteupForge - Professional Cybersecurity Report Generator"
+    if ($iconIco -and (Test-Path $iconIco)) {
+        $smShortcut.IconLocation = $iconIco
+    }
+    $smShortcut.Save()
+    Write-Ok "Start Menu shortcut created"
 } catch {
-    Write-Info "Could not create Start Menu shortcuts (non-critical)"
+    Write-Warn "Could not create Start Menu shortcut: $($_.Exception.Message)"
 }
 
-# Final message
-Write-Host ""
-Write-Header "Installation Complete! ✨"
+# ── Done ──────────────────────────────────────────────────────────────────────
+Write-Header "Installation Complete"
 
-Write-Host "📋 Next Steps:" -ForegroundColor Cyan
+Write-Host "WriteupForge is ready to use." -ForegroundColor Green
 Write-Host ""
-Write-Host "1️⃣  Configure Your API Key:" -ForegroundColor White
-Write-Host "   • Open the .env file in the WriteupForge folder" -ForegroundColor White
-Write-Host "   • Replace 'your_api_key_here' with your Groq API key" -ForegroundColor White
-Write-Host "   • Get a free key at: https://console.groq.com/keys" -ForegroundColor White
-Write-Host ""
-Write-Host "2️⃣  Launch WriteupForge:" -ForegroundColor White
-Write-Host "   • Click the WriteupForge icon on your Desktop" -ForegroundColor White
-Write-Host "   • Or find it in Windows Start Menu > WriteupForge" -ForegroundColor White
-Write-Host "   • Or run: python run.py" -ForegroundColor White
-Write-Host ""
-Write-Host "3️⃣  Start Creating:" -ForegroundColor White
-Write-Host "   • Fill in your writeup details" -ForegroundColor White
-Write-Host "   • Paste your lab notes" -ForegroundColor White
-Write-Host "   • Click 'Generate Professional Report'" -ForegroundColor White
-Write-Host ""
-Write-Host "📁 Your reports will be saved in: $PSScriptRoot\output" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "❓ Need help? Check out: README.md or QUICKSTART.md" -ForegroundColor Yellow
+Write-Host "  - Double-click the WriteupForge icon on your Desktop" -ForegroundColor White
+Write-Host "  - Or find it in: Start Menu > WriteupForge" -ForegroundColor White
+Write-Host "  - Reports are saved in: $ProjectDir\output" -ForegroundColor White
 Write-Host ""
 
-# Ask if user wants to start the app
-Write-Host ""
-$response = Read-Host "Would you like to launch WriteupForge now? (Y/n)"
-if ($response -eq "" -or $response -eq "Y" -or $response -eq "y") {
-    Write-Host "Starting WriteupForge..." -ForegroundColor Cyan
-    & python run.py
+if ($apiKey -eq "your_api_key_here") {
+    Write-Warn "Remember to add your API key via [*] Settings inside the app."
+    Write-Host "   Get a free key at: https://console.groq.com/keys" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+$launch = Read-Host "Launch WriteupForge now? (Y/n)"
+if ($launch -eq "" -or $launch -eq "Y" -or $launch -eq "y") {
+    Write-Info "Starting WriteupForge..."
+    & python "$ProjectDir\run.py"
 } else {
-    Write-Host "Setup complete! You can launch WriteupForge anytime from your Desktop or Start Menu." -ForegroundColor Green
+    Write-Ok "Setup complete. Launch WriteupForge from your Desktop or Start Menu."
 }
