@@ -38,6 +38,15 @@ else
     warn "/etc/writeupforge-path not found — skipping"
 fi
 
+if [ -n "$SUDO_USER" ] && [ -f "/home/$SUDO_USER/.local/bin/fgwrite" ]; then
+    rm -f "/home/$SUDO_USER/.local/bin/fgwrite"
+    ok "Removed /home/$SUDO_USER/.local/bin/fgwrite"
+fi
+if [ -n "$SUDO_USER" ] && [ -f "/home/$SUDO_USER/.local/bin/writeupforge" ]; then
+    rm -f "/home/$SUDO_USER/.local/bin/writeupforge"
+    ok "Removed /home/$SUDO_USER/.local/bin/writeupforge"
+fi
+
 echo ""
 ok "WriteupForge has been uninstalled."
 warn "The project folder and any generated reports were NOT deleted."

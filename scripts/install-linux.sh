@@ -84,6 +84,24 @@ info "Installing WriteupForge package..."
 pip install -e . -q
 ok "WriteupForge installed into virtual environment"
 
+# ── Clean up overlapping user-local installs ──────────────────────────────────
+# If the user previously used `pip install --user` or `pipx`, their ~/.local/bin
+# scripts will shadow the new system-wide wrapper we are placing in /usr/local/bin.
+if [ -n "$SUDO_USER" ] && [ -d "/home/$SUDO_USER/.local/bin" ]; then
+    if [ -f "/home/$SUDO_USER/.local/bin/fgwrite" ]; then
+        rm -f "/home/$SUDO_USER/.local/bin/fgwrite"
+        warn "Removed old local installation at ~/.local/bin/fgwrite"
+    fi
+    if [ -f "/home/$SUDO_USER/.local/bin/writeupforge" ]; then
+        rm -f "/home/$SUDO_USER/.local/bin/writeupforge"
+        warn "Removed old local installation at ~/.local/bin/writeupforge"
+    fi
+fi
+if [ -f "$HOME/.local/bin/fgwrite" ]; then
+    rm -f "$HOME/.local/bin/fgwrite"
+fi
+
+
 # ── Deactivate ────────────────────────────────────────────────────────────────
 deactivate
 
