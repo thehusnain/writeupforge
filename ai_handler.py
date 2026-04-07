@@ -2,6 +2,7 @@ import os
 from groq import Groq
 from dotenv import load_dotenv
 from writeup_types import WriteupTypeDetector, StructuredPromptBuilder, GitHubReadmeGenerator
+from spell_grammar_checker import SpellGrammarChecker
 
 # Load environment variables with better error handling
 try:
@@ -66,7 +67,7 @@ ONLY use provided notes. DO NOT hallucinate."""
         return detected_type, type_descriptions.get(detected_type, 'General Writeup')
     
     def generate_writeup(self, title, author, platform, difficulty, raw_notes):
-        """Generate a structured writeup with automatic type detection."""
+        """Generate a structured writeup with automatic type detection and spell/grammar checking."""
         
         # Detect writeup type
         writeup_type, type_description = self.detect_writeup_type(raw_notes)
@@ -86,6 +87,11 @@ ONLY use provided notes. DO NOT hallucinate."""
             )
             
             formatted_content = response.choices[0].message.content
+            
+            # Apply spell and grammar checking
+            spell_checker = SpellGrammarChecker()
+            formatted_content, corrections = spell_checker.check_content(formatted_content)
+            
             return formatted_content, writeup_type, type_description
             
         except Exception as e:

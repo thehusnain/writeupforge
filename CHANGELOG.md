@@ -2,6 +2,36 @@
 
 All notable changes to WriteupForge will be documented in this file.
 
+## [1.2.0] - April 7, 2026
+
+### ✨ New Features
+
+#### Automatic Spell & Grammar Checking
+- New spell checking module automatically corrects common spelling mistakes
+- Grammar validation applied to all generated writeups
+- Capitalization fixes for proper sentence formatting
+- Comprehensive correction reporting to track all changes made
+
+**What Gets Corrected:**
+- Common spelling mistakes (teh → the, recieve → receive, etc.)
+- Articles usage (a/an before vowels and consonants)
+- Multiple spaces normalized to single spaces
+- Proper spacing before punctuation marks
+- Sentence capitalization
+
+#### Improved Content Quality
+- All generated writeups are automatically spell and grammar checked
+- Correction summary provided in output
+- Maintains original meaning while improving readability
+- Ensures professional quality output for GitHub publication
+
+### 🔧 Technical Improvements
+- New `spell_grammar_checker.py` module for text correction
+- Integrated spell/grammar checking into AI content generation pipeline
+- Non-intrusive corrections that preserve technical content integrity
+
+---
+
 ## [1.1.0] - April 7, 2026
 
 ### ✨ New Features
