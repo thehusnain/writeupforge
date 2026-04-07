@@ -130,29 +130,32 @@ class StructuredPromptBuilder:
     @staticmethod
     def build_prompt(writeup_type: str, title: str, raw_notes: str) -> str:
         """Build a structured prompt based on writeup type."""
-        sections = StructuredPromptBuilder.TEMPLATES.get(writeup_type, {}).get('sections', [])
         
-        sections_text = '\n'.join([f"- {section}" for section in sections])
-        
-        prompt = f"""Analyze these raw notes about '{title}' and create a professional, well-structured writeup.
+        prompt = f"""You are formatting raw notes into a professional, structured writeup.
 
-WRITEUP TYPE: {writeup_type.upper().replace('_', ' ')}
+CRITICAL: Only format and organize the EXACT content from the raw notes. Do NOT add new sections or information.
 
-EXPECTED SECTIONS:
-{sections_text}
+Writeup Type: {writeup_type.upper().replace('_', ' ')}
+Title: {title}
 
-REQUIREMENTS:
-1. Create clear markdown structure with H2 headers for each section
-2. Include an overview/summary at the top
-3. Use tables where appropriate (for comparison, results, findings)
-4. Format code blocks properly with language specifiers
-5. Maintain technical accuracy - DO NOT add unmentioned details
-6. Use professional, clear language
-7. Create [Insert Screenshot/Diagram: Description] placeholders where helpful
-8. Include a brief conclusion or summary at the end
+INSTRUCTIONS:
+1. Keep the EXACT same headings and structure from the raw notes
+2. Include ALL content from the raw notes - do not skip or omit anything
+3. Fix only typos and spelling errors (teh→the, refrence→reference, etc)
+4. Organize content into proper Markdown format:
+   - Use ## for main headings from the notes
+   - Use ### for subheadings from the notes
+   - Format lists with proper bullet points or numbered items
+   - Use tables ONLY if the raw notes contain table-structured data
+   - Format code blocks with triple backticks
+5. Do NOT add sections that are not in the raw notes
+6. Do NOT remove any information from the raw notes
+7. Do NOT reorganize the structure - keep the same order
 
-RAW NOTES:
-{raw_notes}"""
+RAW NOTES TO FORMAT:
+{raw_notes}
+
+Your output should be the same content but professionally formatted in Markdown."""
         
         return prompt
 
