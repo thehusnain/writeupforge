@@ -26,13 +26,33 @@ WriteupForge uses Groq's super-fast AI to write the reports. It is completely fr
 
 ## 💻 Step 2: Installation
 
-### For Linux Users
+### ⭐ Quick Install from Organization Repository
+
+**For all users (Linux, macOS, Windows with WSL):**
+
+```bash
+# Clone from organization repository
+git clone https://github.com/fsociety-pk/writeupforge.git
+cd writeupforge
+
+# Install with pip
+pip install -e .
+```
+
+**Or install directly without cloning:**
+```bash
+pip install git+https://github.com/fsociety-pk/writeupforge.git
+```
+
+---
+
+### For Linux Users (Traditional Method)
 
 1. Open your terminal.
 2. Clone this folder and go into it:
    ```bash
-   git clone https://github.com/thehusnain/WriteupForge.git
-   cd WriteupForge
+   git clone https://github.com/fsociety-pk/writeupforge.git
+   cd writeupforge
    ```
 3. Run the installer script:
    ```bash
@@ -50,7 +70,7 @@ WriteupForge uses Groq's super-fast AI to write the reports. It is completely fr
 2. Search for **PowerShell** in the Start Menu, right-click it, and select **Run as Administrator**.
 3. Go to the extracted folder in PowerShell:
    ```powershell
-   cd path\to\WriteupForge
+   cd path\to\writeupforge
    ```
 4. Run the installer:
    ```powershell
@@ -58,6 +78,39 @@ WriteupForge uses Groq's super-fast AI to write the reports. It is completely fr
    ```
    *Note: Just like Linux, it will ask for your Groq API key.*
 5. **Done!** Check your Desktop for the new **WriteupForge** icon. Double-click it to start!
+
+---
+
+## 🔄 Updating WriteupForge
+
+WriteupForge is actively maintained. Users can update to the latest version using:
+
+### If you installed with pip:
+```bash
+pip install --upgrade git+https://github.com/fsociety-pk/writeupforge.git
+```
+
+### If you cloned the repository:
+```bash
+cd writeupforge
+git pull origin main
+pip install -e .
+```
+
+### Check your current version:
+```bash
+fgwrite --version
+```
+
+---
+
+## 📦 Latest Releases
+
+- **v1.2.1** - Fixed writeup structure preservation (preserves raw notes exactly)
+- **v1.2.0** - Automatic spell & grammar checking
+- **v1.1.0** - Automatic writeup type detection and GitHub-ready output
+
+👉 **[View all releases](https://github.com/fsociety-pk/writeupforge/releases)**
 
 ---
 
