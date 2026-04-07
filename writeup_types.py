@@ -129,33 +129,39 @@ class StructuredPromptBuilder:
     
     @staticmethod
     def build_prompt(writeup_type: str, title: str, raw_notes: str) -> str:
-        """Build a structured prompt based on writeup type."""
+        """Build a structured prompt that ONLY formats without changing structure."""
         
-        prompt = f"""You are formatting raw notes into a professional, structured writeup.
+        # Extract all lines that look like headings (end with colons or are on their own)
+        lines = raw_notes.split('\n')
+        
+        prompt = f"""You are a Markdown formatter. Your ONLY job is to convert raw text notes into properly formatted Markdown.
 
-CRITICAL: Only format and organize the EXACT content from the raw notes. Do NOT add new sections or information.
+CRITICAL RULES (MUST OBEY):
+1. PRESERVE ABSOLUTELY ALL CONTENT - Do not skip a single word
+2. PRESERVE ALL HEADINGS EXACTLY AS WRITTEN in the raw notes
+3. DO NOT create new sections that are not in the raw notes
+4. DO NOT add "Introduction", "Conclusion", "Overview", "Summary" or any other sections NOT in the original
+5. DO NOT reorganize or reorder the content
+6. DO NOT remove any information
+7. ONLY apply formatting - no content changes
 
-Writeup Type: {writeup_type.upper().replace('_', ' ')}
-Title: {title}
+FORMATTING RULES:
+- Convert main headings to ## (two hashes)
+- Convert subheadings to ### (three hashes) 
+- Format bullet points with proper indentation
+- Fix ONLY spelling typos (undestand→understand, ti→to, etc)
+- DO NOT fix grammar or change wording
+- Use bold for **key terms** if they stand out
+- Use code blocks with ``` only for actual code
 
-INSTRUCTIONS:
-1. Keep the EXACT same headings and structure from the raw notes
-2. Include ALL content from the raw notes - do not skip or omit anything
-3. Fix only typos and spelling errors (teh→the, refrence→reference, etc)
-4. Organize content into proper Markdown format:
-   - Use ## for main headings from the notes
-   - Use ### for subheadings from the notes
-   - Format lists with proper bullet points or numbered items
-   - Use tables ONLY if the raw notes contain table-structured data
-   - Format code blocks with triple backticks
-5. Do NOT add sections that are not in the raw notes
-6. Do NOT remove any information from the raw notes
-7. Do NOT reorganize the structure - keep the same order
+OUTPUT REQUIREMENT:
+The formatted markdown should contain EXACTLY the same information as the raw notes.
+When I read both (raw and formatted), they should say the same thing - just prettier.
 
 RAW NOTES TO FORMAT:
 {raw_notes}
 
-Your output should be the same content but professionally formatted in Markdown."""
+Now format this into clean Markdown while keeping EVERY WORD and EVERY HEADING exactly as it appears."""
         
         return prompt
 
