@@ -100,6 +100,71 @@ All notable changes to WriteupForge will be documented in this file.
 
 ---
 
+## 🔄 How to Update to v1.1.0
+
+If you have **WriteupForge v1.0.0** already installed on your system, follow these steps to update:
+
+### For Linux Users
+
+```bash
+# 1. Navigate to your WriteupForge installation folder
+cd path/to/WriteupForge
+
+# 2. Pull the latest version from GitHub
+git pull origin main
+
+# 3. Reinstall with the new updates (optional but recommended)
+sudo bash install.sh
+
+# 4. Verify the update
+fgwrite --version
+```
+
+Or if you want the quick update (without reinstalling):
+```bash
+cd path/to/WriteupForge
+git pull origin main
+# That's it! The `fgwrite` command will use the updated code automatically
+```
+
+### For Windows Users
+
+```powershell
+# 1. Open the WriteupForge folder in File Explorer
+# Navigate to your WriteupForge directory
+
+# 2. Open PowerShell in this folder (Shift + Right-click → Open PowerShell here)
+
+# 3. Pull the latest version
+git pull origin main
+
+# 4. Reinstall (optional but recommended)
+powershell -ExecutionPolicy Bypass -File scripts\install-wizard.ps1
+
+# 5. The app will be updated automatically
+```
+
+### What Changes After Update?
+
+**Good news**: Your workflow stays exactly the same!
+
+- ✅ All existing commands work identically
+- ✅ Your output folder structure improves (organized by project)
+- ✅ Simply enjoy the new features automatically
+- ✅ Each writeup now gets a GitHub README automatically
+
+### New Features You'll See
+
+After updating, when you run `fgwrite`:
+- AI will detect your writeup type automatically
+- Content will be structured specifically for that type
+- A professional GitHub README will be created
+- Everything organizes in a project folder ready to push
+
+**No configuration needed** — just update and start using!
+
+---
+
 ## Notes
 
 For migration from v1.0.0 to v1.1.0:
@@ -107,3 +172,4 @@ For migration from v1.0.0 to v1.1.0:
 - Output folder structure will change (now includes project folders)
 - README files will be auto-generated alongside writeups
 - No breaking changes to CLI commands
+- Pull latest code with `git pull origin main`
